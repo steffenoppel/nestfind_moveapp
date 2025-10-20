@@ -1,0 +1,12 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+.idea/
+data/output/**
+!data/output/.keep
+.cache/
+.config/
+.local/
+shiny_bookmarks/
