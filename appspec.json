@@ -17,7 +17,25 @@
         "name": "sf"
       },
       {
+        "name": "dplyr"
+      },
+      {
        "remotes": "install_git('https://gitlab.com/bartk/move2.git')"
+      },
+      {
+        "name": "lubridate"
+      },
+      {
+        "name": "recurse"
+      },
+      {
+        "name": "RANN"
+      },
+      {
+        "name": "leaflet"
+      },
+      {
+        "name": "viridis"
       }
     ]
   },

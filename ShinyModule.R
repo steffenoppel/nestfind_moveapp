@@ -3,7 +3,6 @@ library("move2")
 library("sf")
 library("dplyr")
 library("lubridate")
-library("amt")
 library("recurse")
 library("RANN")
 library("leaflet")
@@ -14,26 +13,14 @@ library("viridis")
 
 # helper functions
 get_unique_track_ids <- function(move_data) {
+  # This function lets us load the track ids in the data set, without crashing Shiny
   return(mt_track_data(move_data)[[mt_track_id_column(move_data)]])
-}
-
-get_move_as_df <- function(move_data) {
-  coords <- move_data |>
-    sf::st_coordinates()
-
-  move_df <- move_data |>
-    as.data.frame() |>
-    mutate(
-      x = coords[, 1],
-      y = coords[, 2]
-    )
-
-  return(move_df)
 }
 
 
 get_recursions <- function(move_by_ind, nest_radius) {
   if (nrow(move_by_ind) > 10000) {
+    # TODO: confirm this is an appropriate amount to filter, to every 12 hours
     move_by_ind <- mt_filter_per_interval(move_by_ind, unit = "12 hours")
   }
   
@@ -51,11 +38,20 @@ get_recursions <- function(move_by_ind, nest_radius) {
 }
 
 get_best_nests_for_ind <- function(move_by_ind, nest_radius) {
-  # Calculate nearest neighbor distances
+  
+  # This is the main function that detects nest locations
+  # move_by_ind is the move2 object filtered to the current individual
+  # this is because we call the function in an lapply, but all individuals data 
+  # gets evaluated on load of the app, prior to the user selecting which track 
+  # they are interested in
+  
+  # TODO: confirm the algorithm looks right and is working correctly
+  
 
   coords <- move_by_ind |>
     sf::st_coordinates()
 
+  # Calculate nearest neighbor distances
   nearest <- RANN::nn2(coords, coords, k = min(nrow(move_by_ind), 25))$nn.dists
 
   move_by_ind$NN50dist <- apply(nearest, 1, median)
@@ -93,6 +89,7 @@ get_best_nests_for_ind <- function(move_by_ind, nest_radius) {
   }
 
   # Retain best nest location
+  # Note: this is still a move2 object
   best_nests <- plausible_nests |>
     slice_max(order_by = npoint, n = 1) |>
     slice_max(order_by = residence_time, n = 1) |>
@@ -165,6 +162,7 @@ shinyModule <- function(input, output, session, data) {
     move_by_ind_list <- data |>
       split(mt_track_id(data))
 
+    # Run nest prediction for all individuals
     best_nests_list <- lapply(move_by_ind_list, function(move_by_ind) {
       if (nrow(move_by_ind) < 5) next
 
@@ -173,12 +171,10 @@ shinyModule <- function(input, output, session, data) {
       return(best_nests)
     })
 
+    # Still a move2 object
     all_nests <- do.call(rbind, best_nests_list)
 
-    all_nests_for_display <- all_nests |>
-      st_as_sf(coords = c("x", "y"), crs = st_crs(data))
-
-    return(all_nests_for_display)
+    return(all_nests)
   })
 
   # Update individual selection
@@ -232,26 +228,6 @@ shinyModule <- function(input, output, session, data) {
       )
   })
 
-  # Previous/Next buttons
-  observeEvent(input$prevBtn, {
-    req(input$track_id, data)
-    track_id_list <- get_unique_track_ids(data)
-    list_placement <- which(track_id_list == input$track_id)
-    if (list_placement > 1) {
-      updateSelectInput(session, "track_id", selected = track_id_list[list_placement - 1])
-    }
-  })
-
-  observeEvent(input$nextBtn, {
-    req(input$track_id, data)
-
-    track_id_list <- get_unique_track_ids(data)
-    list_placement <- which(track_id_list == input$track_id)
-
-    if (list_placement < length(track_id_list)) {
-      updateSelectInput(session, "track_id", selected = track_id_list[list_placement + 1])
-    }
-  })
 
   # Render map
   output$map_or_text <- renderUI({
@@ -340,8 +316,9 @@ shinyModule <- function(input, output, session, data) {
     }
   )
 
-  # Return nest predictions as modified data
+  # Return original data
+  # TODO: you will need to update this if you want to be able to pass the nest predictions onto the next APP
   return(reactive({
-    nest_predictions()
+    data
   }))
 }
