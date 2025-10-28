@@ -50,35 +50,35 @@
   },
   "language": "eng",
   "keywords": [
-    "example",
-    "template"
+    "nest",
+    "monitoring","fieldwork","helper","demographic"
   ],
   "people": [
     {
-      "firstName": "Charles",
+      "firstName": "Steffen",
       "middleInitials": null,
-      "lastName": "Darwin",
-      "email": "creator@example.com",
+      "lastName": "Oppel,
+      "email": "steffen.oppel@vogelwarte.ch",
       "roles": [
         "author",
         "creator"
       ],
-      "orcid": null,
-      "affiliation": null,
+      "orcid": "https://orcid.org/0000-0002-8220-3789",
+      "affiliation": "Swiss Ornithological Institute",
       "affiliationRor": null
     }
   ],
   "funding": [
     {
-      "name": "funder name",
-      "comment": "grant for App"
+      "name": "Swiss National Science Foundation",
+      "comment": "grants 31003A_169668 and 310030_212469 to M. U. Grüebler"
     }
   ],
   "references": [
     {
       "type": "IsDescribedBy",
-      "note": "Darwin, C. 1900. The creation. Journal XY. 1-2",
-      "url": "https://anylink.xyz"
+      "note": "Oppel et al. 2025. Extracting reproductive parameters from GPS tracking data for a nesting raptor in Europe. Journal of Avian Biology. e03246",
+      "url": "https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/jav.03246"
     }
   ]
 }
