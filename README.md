@@ -1,39 +1,36 @@
 # Name of App *(Give your app a short and informative title. Please adhere to our convention of Title Case without hyphens (e.g. My New App))*
 
-MoveApps
+NestFind
 
-Github repository: *github.com/yourAccount/Name-of-App* *(provide the link to the repository where the code of the App can be found)*
+Github repository: https://github.com/Vogelwarte/NestTool
 
 ## Description
-*Enter here the short description of the App that might also be used when filling out the description during App submission to MoveApps. This text is directly presented to Users that look through the list of Apps when compiling Workflows.*
+The NestFind app is a tool to identify the most likely nest location for birds during the current field season and thus aid in field data collection. 
 
 ## Documentation
-*Enter here a detailed description of your App. What is it intended to be used for. Which steps of analyses are performed and how. Please be explicit about any detail that is important for use and understanding of the App and its outcomes. You might also refer to the sections below.*
+The NestFind app takes current tracking data (up to the last 4 weeks), and identifies the most likely nest location for every individual based on recursive movement patterns of each individual.
+The main requirement is a reasonably high temporal resolution of tracking data (ideally 1 location per hour, but it can work with 5-10 locations per day) with sufficient spatial precision (error of up to 20 m).
+The user needs to specify the Movebank Study from which the data will be sourced, a time horizon (the last 1, 2, 3, or 4 weeks), and an error radius around the nest that will be very species specific.
+The error radius will be used to calculate the departure and return times from/to the 'nest' site, and a sensible value is needed because this radius will determine how long an animal remained within that radius or how long it spent outside this radius. Users should consider device accuracy and general movement behaviour of the species when specifying the radius (we suggest a default of 50 m for medium raptors nesting in open landscape with good GPS coverage).
+For each individual the app will calculate the recursion times and frequencies for each GPS location, and will then select the GPS location where the individual spent the most time and to which the individual returned most frequently.
+Locations are sorted by the time an individual spent within the user-specified radius, and the location with the greatest number of nearest neighbours is selected as the likely nest location.
+This app does **NOT** estimate any probability of this location being a nest - it will only return the most likely location of a nest if a breeding individual has been tracked and data are inspected for the correct time of the year.
+
+
 
 ### Application scope
 #### Generality of App usability
-*State here if the App was developed for a specific species, taxon or taxonomic group, or to answer a specific question. How might it influence the scope and utility of the App. This information will help the user to understand why the App might be producing no or odd results.*
-
-*Examples:*
-
-This App was developed using data of birds. 
-
-This App was developed using data of red deer. 
-
-This App was developed for any taxonomic group. 
-
-This App was developed to identify kill sites, but can probably be used to identify any kind of location clusters like nests, dens or drinking holes.
+This app was developed for bird species that are tracked with GPS transmitters that stream the data into Movebank in near real-time.
+The purpose of the app is to use the tracking data to find nests in the field.
+We have tested this app for a range of diurnal bird species (red kite, Egyptian vulture, Golden eagle, nutcracker) with different data resolutions.
+This app will **NOT** indicate whether a bird is nesting, it will only return the most likely location of a nest if a breeding individual has been tracked and data are inspected for the correct time of the year.
+For retrospectively identifying nest locations and the probability to breed, we recommend the package (NestTool)[https://github.com/Vogelwarte/NestTool].
+This App was developed to identify nest sites, but can probably also be used to identify any kind of location clusters like feeding sites or watering holes.
 
 #### Required data properties
-*State here the required and/or optimal data properties for this App to perform properly.*
-
-*Examples:*
-
-This App is only applicable to data that reflect range resident behavior. 
-
-The data should have a fix rate of at least 1 location per 30 minutes. 
-
-The App should work for any kind of (location) data.
+This App is only applicable to data that reflect behavior by breeding birds during the breeding season. 
+The data should have a fix rate of at least 1 location per 60 minutes over the time period specified by the user (current day - X weeks). 
+The App should work for any kind of high-resolution location data with spatial errors << the error radius specified by the user.
 
 ### Input type
 *Indicate which type of input data the App requires.*
@@ -41,19 +38,20 @@ The App should work for any kind of (location) data.
 *Example*: `move2::move2_loc`
 
 ### Output type
-*Indicate which type of output data the App produces to be passed on to subsequent Apps.*
+The app primarily returns a Shiny user interface to indicate the most likely nest location per individual on a map.
+There is an option to export a 'gpkg' geo-package file that can be used for field navigation by handheld electronic devices with GPS functionality.
 
-*Example:* `move2::move2_loc`
 
 ### Artefacts
 *If the App creates artefacts (e.g. csv, pdf, jpeg, shapefiles, etc), please list them here and describe each.*
 
-*Example:* `rest_overview.csv`: csv-file with Table of all rest site properties
+`rest_overview.csv`: csv-file with Table of all rest site properties
+`rest_overview.gpkg`: csv-file with Table of all rest site properties
 
 ### Settings 
-*Please list and define all settings that the App requires to be set by the App user, if necessary including their unit. Please state each of the settings that the user will encounter in the UI of the shiny app.*
 
-*Example:* `Radius of resting site` (radius): Defined radius the animal has to stay in for a given duration of time for it to be considered resting site. Unit: `metres`.
+`Timeframe`: The number of weeks prior to the current date over which data will be downloaded. Unit: `weeks`.
+`Error radius`: Radius around a nest site in which GPS locations can be recorded when the individual is attending the nest site. This is a function of both geolocation error and the movement behaviour of the species. Unit: `metres`.
 
 *Always include the "Store settings" setting as it will appear automatically in all shiny apps*
 `Store settings`: click to store the current settings of the App for future Workflow runs. 
